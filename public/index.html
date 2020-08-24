@@ -46,7 +46,7 @@
             }
         });
     }
-    // Получение одного пользователя
+    // Получение одной валюты
     function GetMoney(id) {
         $.ajax({
             url: "/api/coins/"+id,
@@ -100,7 +100,7 @@
         form.reset();
         form.elements["id"].value = 0;
     }
-    // Удаление пользователя
+    // Удаление валюты
     function DeleteMoney(id) {
         $.ajax({
             url: "api/coins/"+id,
