@@ -26,7 +26,7 @@ app.get("/api/coins/:id", function(req, res){
     var content = fs.readFileSync("coins.json", "utf8");
     var coins = JSON.parse(content);
     var coin = null;
-    // находим в массиве пользователя по id
+    // находим в массиве валюту по id
     for(var i=0; i<coins.length; i++){
         if(coins[i].id==id){
             coin = coins[i];
