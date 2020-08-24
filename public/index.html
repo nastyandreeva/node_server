@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Список валют</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+<body>
+<h2>Список валют</h2>
+<form name="userForm">
+    <input type="hidden" name="id" value="0" />
+    <div class="form-group">
+        <label for="ticker">Тикер</label>
+        <input class="form-control" name="ticker" />
+    </div>
+    <div class="form-group">
+        <label for="name">Валюта</label>
+        <input class="form-control" name="name" />
+    </div>
+    <div class="panel-body">
+        <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
+        <a id="reset" class="btn btn-sm btn-primary">Сбросить</a>
+    </div>
+</form>
+<table class="table table-condensed table-striped table-bordered">
+    <thead><tr><th>Id</th><th>Тикер</th><th>Валюта</th><th></th></tr></thead>
+    <tbody>
+    </tbody>
+</table>
+<script>
+    // Получение всех валют
+    function GetMoneys() {
+        $.ajax({
+            url: "/api/coins",
+            type: "GET",
+            contentType: "application/json",
+            success: function (coins) {
+                var rows = "";
+                $.each(coins, function (index, coin) {
+                    // добавляем полученные элементы в таблицу
+                    rows += row(coin);
+                })
+                $("table tbody").append(rows);
+            }
+        });
+    }
+    // Получение одного пользователя
+    function GetMoney(id) {
+        $.ajax({
+            url: "/api/coins/"+id,
+            type: "GET",
+            contentType: "application/json",
+            success: function (coin) {
+                var form = document.forms["userForm"];
+                form.elements["id"].value = coin.id;
+                form.elements["ticker"].value = coin.ticker;
+                form.elements["name"].value = coin.name;
+            }
+        });
+    }
+    // Добавление валюты
+    function CreateMoney(newTicker,newName) {
+        $.ajax({
+            url: "api/coins",
+            contentType: "application/json",
+            method: "POST",
+            data: JSON.stringify({
+                ticker: newTicker,
+                name: newName
+            }),
+            success: function (coin) {
+                reset();
+                $("table tbody").append(row(coin));
+            }
+        })
+    }
+    // Изменение валюты
+    function EditMoney(moneyId, newTicker, newName) {
+        $.ajax({
+            url: "api/coins",
+            contentType: "application/json",
+            method: "PUT",
+            data: JSON.stringify({
+                id: moneyId,
+                ticker: newTicker,
+                name: newName
+            }),
+            success: function (coin) {
+                reset();
+                $("tr[data-rowid='" + user.id + "']").replaceWith(row(user));
+            }
+        })
+    }
+
+    // сброс формы
+    function reset() {
+        var form = document.forms["userForm"];
+        form.reset();
+        form.elements["id"].value = 0;
+    }
+    // Удаление пользователя
+    function DeleteMoney(id) {
+        $.ajax({
+            url: "api/coins/"+id,
+            contentType: "application/json",
+            method: "DELETE",
+            success: function (coin) {
+                console.log(coin);
+                $("tr[data-rowid='" + coin.id + "']").remove();
+            }
+        })
+    }
+    // создание строки для таблицы
+    var row = function (coin) {
+        return "<tr data-rowid='" + coin.id + "'><td>" + coin.id + "</td>" +
+            "<td>" + coin.ticker + "</td> <td>" + coin.name + "</td>" +
+            "<td><a class='editLink' data-id='" + coin.id + "'>Изменить</a> | " +
+            "<a class='removeLink' data-id='" + coin.id + "'>Удалить</a></td></tr>";
+    }
+    // сброс значений формы
+    $("#reset").click(function (e) {
+
+        e.preventDefault();
+        reset();
+    })
+
+    // отправка формы
+    $("form").submit(function (e) {
+        e.preventDefault();
+        var id = this.elements["id"].value;
+        var ticker = this.elements["ticker"].value;
+        var name = this.elements["name"].value;
+        if (id == 0)
+            CreateMoney(ticker, name);
+        else
+            EditMoney(id, ticker, name);
+    });
+
+    // нажимаем на ссылку Изменить
+    $("body").on("click", ".editLink", function () {
+        var id = $(this).data("id");
+        GetMoney(id);
+    })
+    // нажимаем на ссылку Удалить
+    $("body").on("click", ".removeLink", function () {
+        var id = $(this).data("id");
+        DeleteMoney(id);
+    })
+
+    // загрузка валют
+    GetMoneys();
+
+</script>
+</body>
+</html>
