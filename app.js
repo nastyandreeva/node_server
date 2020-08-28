@@ -1,17 +1,17 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var fs = require("fs");
-var expressValidator= require('express-validator'); //нов
-var expressSession = require('express-session'); //нов
-var routes = require('./routes/index'); //нов
+var expressValidator= require('express-validator'); 
+var expressSession = require('express-session'); 
+var routes = require('./routes/index'); 
 var app = express();
 var jsonParser = bodyParser.json();
 
-app.use(expressValidator()); //нов
+app.use(expressValidator()); 
 app.use(express.static(__dirname + "/public"));
 app.use(expressSession({secret:'max', saveUninitialized:false,resave:false}))//нов
 
-app.use('/', routes) //нов
+app.use('/', routes) 
 // получение списка данных
 app.get("/api/coins", function(req, res){
 
